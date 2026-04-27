@@ -172,4 +172,99 @@ export class WalletService {
       };
     });
   }
+
+  /**
+   * Withdraws funds from a wallet
+   * @param userId - ID of the user
+   * @param amount - Amount to withdraw
+   * @param db - Knex instance for transaction
+   * @returns {Promise<any>} - Success message and reference
+   */
+  async withdraw(userId: string, amount: number, db: Knex): Promise<any> {
+    if (amount <= 0) {
+      throw new AppError('Amount must be greater than zero', 400);
+    }
+
+    return db.transaction(async (trx) => {
+      const wallet = await this.walletRepository.findByUserId(userId, trx);
+      if (!wallet) {
+        throw new AppError('Wallet not found', 404);
+      }
+
+      const balanceBefore = Number(wallet.balance);
+      if (balanceBefore < amount) {
+        throw new AppError('Insufficient funds', 400);
+      }
+
+      const balanceAfter = balanceBefore - amount;
+      const reference = generateReference();
+
+      await this.walletRepository.update(wallet.id, { balance: balanceAfter }, trx);
+
+      await this.transactionRepository.create(
+        {
+          reference,
+          wallet_id: wallet.id,
+          type: 'debit',
+          amount,
+          balance_before: balanceBefore,
+          balance_after: balanceAfter,
+          description: 'Wallet withdrawal',
+          status: 'success',
+        },
+        trx,
+      );
+
+      return {
+        message: 'Withdrawal successful',
+        reference,
+        amount,
+        balance: balanceAfter,
+      };
+    });
+  }
+
+  /**
+   * Gets current balance for a user
+   * @param userId - ID of the user
+   * @returns {Promise<any>} - Balance
+   */
+  async getBalance(userId: string): Promise<any> {
+    const wallet = await this.walletRepository.findByUserId(userId);
+    if (!wallet) {
+      throw new AppError('Wallet not found', 404);
+    }
+    return { balance: wallet.balance };
+  }
+
+  /**
+   * Gets transaction history for a user
+   * @param userId - ID of the user
+   * @param page - Page number
+   * @param limit - Number of records per page
+   * @returns {Promise<any>} - Transactions list
+   */
+  async getTransactions(userId: string, page = 1, limit = 10): Promise<any> {
+    const wallet = await this.walletRepository.findByUserId(userId);
+    if (!wallet) {
+      throw new AppError('Wallet not found', 404);
+    }
+
+    const offset = (page - 1) * limit;
+
+    const transactions = await (this.transactionRepository as any)
+      .db('transactions')
+      .where({ wallet_id: wallet.id })
+      .orderBy('created_at', 'desc')
+      .limit(limit)
+      .offset(offset);
+
+    return {
+      transactions,
+      pagination: {
+        page,
+        limit,
+      },
+    };
+  }
 }
