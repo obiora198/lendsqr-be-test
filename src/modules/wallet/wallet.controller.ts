@@ -22,4 +22,20 @@ export class WalletController {
       });
     }
   }
+
+  static async transfer(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const senderUserId = req.user.id;
+      const { recipientEmail, amount } = req.body;
+      
+      const result = await walletService.transfer(senderUserId, recipientEmail, amount, database);
+      res.status(200).json(formatResponse('Transfer successful', result, 200));
+    } catch (error: any) {
+      res.status(error.statusCode || 500).json({
+        success: false,
+        message: error.message,
+        statusCode: error.statusCode || 500,
+      });
+    }
+  }
 }
