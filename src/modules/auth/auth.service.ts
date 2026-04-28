@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs';
 import { Knex } from 'knex';
-import { UserRepository, User } from '../user/user.repository';
-import { WalletRepository } from '../wallet/wallet.repository';
-import { AdjutorService } from '../../services/adjutor.service';
+import { UserRepository, User } from '@/modules/user/user.repository';
+import { WalletRepository } from '@/modules/wallet/wallet.repository';
+import { AdjutorService } from '@/services/adjutor.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { generateToken } from '../../utils/helpers';
-import { AppError } from '../../utils/errors';
+import { AppError } from '../../utils';
 
 export class AuthService {
   private userRepository: UserRepository;

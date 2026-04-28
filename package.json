@@ -9,6 +9,7 @@
     "start": "node dist/server.js",
     "test": "jest",
     "migrate": "knex migrate:latest",
+    "migrate:latest": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback"
   },
   "keywords": [],

@@ -1,9 +1,9 @@
 import { Knex } from 'knex';
-import { WalletRepository } from './wallet.repository';
-import { TransactionRepository } from './transaction.repository';
-import { UserRepository } from '../user/user.repository';
+import { WalletRepository } from '@/modules/wallet/wallet.repository';
+import { TransactionRepository } from '@/modules/wallet/transaction.repository';
+import { UserRepository } from '@/modules/user/user.repository';
 import { generateReference } from '../../utils/helpers';
-import { AppError } from '../../utils/errors';
+import { AppError } from '../../utils';
 
 export class WalletService {
   private walletRepository: WalletRepository;
