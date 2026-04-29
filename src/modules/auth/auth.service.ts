@@ -7,6 +7,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { generateToken } from '../../utils/helpers';
 import { AppError } from '../../utils';
+import { config } from '../../config/env';
 
 export class AuthService {
   private userRepository: UserRepository;
@@ -27,11 +28,14 @@ export class AuthService {
    */
   async register(dto: RegisterDto, db: Knex): Promise<any> {
     // 1. Check Karma blacklist by email and BVN
-    const isEmailBlacklisted = await this.adjutorService.checkKarmaBlacklist(dto.email);
-    const isBvnBlacklisted = await this.adjutorService.checkKarmaBlacklist(dto.bvn);
+    const emailKarmaData = await this.adjutorService.checkKarmaBlacklist(dto.email);
+    const bvnKarmaData = await this.adjutorService.checkKarmaBlacklist(dto.bvn);
 
-    if (isEmailBlacklisted || isBvnBlacklisted) {
-      throw new AppError('User cannot be onboarded due to compliance restrictions', 403);
+    if (emailKarmaData || bvnKarmaData) {
+      if (config.enforceKarmaBlacklist) {
+        throw new AppError('Identity is flagged on Karma blacklist and cannot be onboarded', 403);
+      }
+      console.warn(`[ENFORCEMENT BYPASSED] User ${dto.email} / ${dto.bvn} found on Karma blacklist, but allowing signup for review.`);
     }
 
     // 2. Check if user already exists
@@ -74,6 +78,16 @@ export class AuthService {
         user: sanitizedUser,
         wallet,
         token,
+        compliance: {
+          email_lookup: {
+            status: emailKarmaData ? 'Found on Blacklist' : 'Clean',
+            data: emailKarmaData || null,
+          },
+          bvn_lookup: {
+            status: bvnKarmaData ? 'Found on Blacklist' : 'Clean',
+            data: bvnKarmaData || null,
+          },
+        },
       };
     });
   }
@@ -84,6 +98,9 @@ export class AuthService {
    * @returns {Promise<any>} - User and token
    */
   async login(dto: LoginDto): Promise<any> {
+    if (!dto || !dto.email) {
+      throw new AppError('Login data (email and password) is required', 400);
+    }
     // 1. Find user by email
     const user = await this.userRepository.findByEmail(dto.email);
     if (!user) {

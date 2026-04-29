@@ -7,6 +7,12 @@ jest.mock('@/modules/user/user.repository');
 jest.mock('@/modules/wallet/wallet.repository');
 jest.mock('@/services/adjutor.service');
 
+jest.mock('@/config/env', () => ({
+  config: {
+    enforceKarmaBlacklist: true,
+  },
+}));
+
 import { AuthService } from '../modules/auth/auth.service';
 import { AdjutorService } from '@/services/adjutor.service';
 import { UserRepository } from '@/modules/user/user.repository';
@@ -64,6 +70,13 @@ describe('AuthService', () => {
     it('should reject registration when user is on Karma blacklist', async () => {
       mockAdjutorService.checkKarmaBlacklist.mockResolvedValue(true);
       await expect(authService.register(registerDto, mockDb)).rejects.toThrow();
+    });
+
+    it('should reject registration when email already exists', async () => {
+      mockAdjutorService.checkKarmaBlacklist.mockResolvedValue(false);
+      mockUserRepository.findByEmail.mockResolvedValue({ id: 'existing-id' });
+      
+      await expect(authService.register(registerDto, mockDb)).rejects.toThrow('User with this email already exists');
     });
   });
 

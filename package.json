@@ -8,9 +8,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest",
-    "migrate": "knex migrate:latest",
-    "migrate:latest": "knex migrate:latest",
-    "migrate:rollback": "knex migrate:rollback"
+    "migrate": "knex migrate:latest --knexfile src/knexfile.ts",
+    "migrate:latest": "knex migrate:latest --knexfile src/knexfile.ts",
+    "migrate:rollback": "knex migrate:rollback --knexfile src/knexfile.ts"
   },
   "keywords": [],
   "author": "",
@@ -42,6 +42,7 @@
     "prettier": "^3.8.3",
     "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3"
   }
 }

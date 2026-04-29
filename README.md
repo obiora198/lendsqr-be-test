@@ -18,10 +18,10 @@ This service prioritizes security, data integrity (using atomic transactions), a
 
 | Requirement | Status | Implementation Detail |
 | :--- | :---: | :--- |
-| **Account Creation** | ✅ | `POST /auth/register` with Joi validation and Adjutor Karma check. |
-| **Fund Account** | ✅ | `POST /wallet/fund` using Knex transactions. |
-| **Transfer Funds** | ✅ | `POST /wallet/transfer` ensures atomicity between sender and recipient. |
-| **Withdraw Funds** | ✅ | `POST /wallet/withdraw` with balance verification. |
+| **Account Creation** | ✅ | `POST /api/v1/auth/register` with Joi validation and Adjutor Karma check. |
+| **Fund Account** | ✅ | `POST /api/v1/wallet/fund` using Knex transactions. |
+| **Transfer Funds** | ✅ | `POST /api/v1/wallet/transfer` ensures atomicity between sender and recipient. |
+| **Withdraw Funds** | ✅ | `POST /api/v1/wallet/withdraw` with balance verification. |
 | **Karma Blacklist Check** | ✅ | Integrated with Adjutor API; rejects registration if user is blacklisted. |
 | **Token Authentication** | ✅ | Faux token-based authentication implemented via JWT. |
 | **Unit Tests** | ✅ | Comprehensive tests for success and failure scenarios (Auth & Wallet). |
@@ -129,12 +129,12 @@ npm test
 
 ### Authentication
 #### Register
-`POST /auth/register`
+`POST /api/v1/auth/register`
 - **Body**: `{ name, email, phone, bvn, password }`
 - **Note**: Rejects if BVN/Email is on Lendsqr Karma blacklist.
 
 #### Login
-`POST /auth/login`
+`POST /api/v1/auth/login`
 - **Body**: `{ email, password }`
 - **Returns**: JWT Token.
 
@@ -142,22 +142,22 @@ npm test
 All wallet endpoints require `Authorization: Bearer <token>`.
 
 #### Fund Wallet
-`POST /wallet/fund`
+`POST /api/v1/wallet/fund`
 - **Body**: `{ amount }`
 
 #### Transfer
-`POST /wallet/transfer`
+`POST /api/v1/wallet/transfer`
 - **Body**: `{ recipientEmail, amount }`
 
 #### Withdraw
-`POST /wallet/withdraw`
+`POST /api/v1/wallet/withdraw`
 - **Body**: `{ amount }`
 
 #### Get Balance
-`GET /wallet/balance`
+`GET /api/v1/wallet/balance`
 
 #### Transaction History
-`GET /wallet/transactions?page=1&limit=10`
+`GET /api/v1/wallet/transactions?page=1&limit=10`
 
 ---
 

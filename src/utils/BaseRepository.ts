@@ -1,4 +1,5 @@
 import { Knex } from 'knex';
+import { v4 as uuidv4 } from 'uuid';
 
 export abstract class BaseRepository<T extends { id: string }> {
   constructor(
@@ -19,12 +20,12 @@ export abstract class BaseRepository<T extends { id: string }> {
   }
 
   async create(data: Partial<T>, trx?: Knex.Transaction): Promise<T> {
-    const [id] = await (trx || this.db)(this.tableName).insert(data);
-    // Note: MySQL insert returns an array with the auto-increment ID if applicable.
-    // Since we use UUIDs, we should probably return the record or the ID.
-    // If id is 0 (because we provided UUID), we use data.id.
-    const recordId = data.id || id;
-    return this.findById(recordId as string, trx) as Promise<T>;
+    const id = data.id || uuidv4();
+    const payload = { ...data, id };
+    
+    await (trx || this.db)(this.tableName).insert(payload);
+    
+    return (await this.findById(id as string, trx)) as T;
   }
 
   async update(id: string, data: Partial<T>, trx?: Knex.Transaction): Promise<T | undefined> {

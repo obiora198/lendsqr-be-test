@@ -1,5 +1,5 @@
 import type { Knex } from 'knex';
-import { config } from './src/config/env';
+import { config } from './config/env';
 
 const knexConfig: { [key: string]: Knex.Config } = {
   development: {
@@ -12,7 +12,7 @@ const knexConfig: { [key: string]: Knex.Config } = {
       database: config.db.name,
     },
     migrations: {
-      directory: './src/database/migrations',
+      directory: './database/migrations',
       extension: 'ts',
     },
   },
@@ -26,7 +26,7 @@ const knexConfig: { [key: string]: Knex.Config } = {
       database: config.db.name + '_test',
     },
     migrations: {
-      directory: './src/database/migrations',
+      directory: './database/migrations',
       extension: 'ts',
     },
   },

@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 import Joi from 'joi';
+import path from 'path';
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const envVarsSchema = Joi.object({
   NODE_ENV: Joi.string().valid('development', 'test', 'production').default('development'),
@@ -13,6 +14,7 @@ const envVarsSchema = Joi.object({
   DB_NAME: Joi.string().required().description('Database name'),
   JWT_SECRET: Joi.string().required().description('JWT secret key'),
   ADJUTOR_API_KEY: Joi.string().required().description('Adjutor API key'),
+  ENFORCE_KARMA_BLACKLIST: Joi.boolean().default(false).description('Whether to strictly enforce Karma blacklist'),
 })
   .unknown()
   .required();
@@ -35,4 +37,5 @@ export const config = {
   },
   jwtSecret: envVars.JWT_SECRET,
   adjutorApiKey: envVars.ADJUTOR_API_KEY,
+  enforceKarmaBlacklist: envVars.ENFORCE_KARMA_BLACKLIST,
 };

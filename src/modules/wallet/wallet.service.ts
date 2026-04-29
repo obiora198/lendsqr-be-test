@@ -122,7 +122,8 @@ export class WalletService {
       }
 
       const recipientBalanceBefore = Number(recipientWallet.balance);
-      const reference = generateReference();
+      const debitReference = generateReference();
+      const creditReference = generateReference();
 
       // 4. Update balances
       const senderBalanceAfter = senderBalanceBefore - amount;
@@ -138,7 +139,7 @@ export class WalletService {
       // 5. Record transactions
       await this.transactionRepository.create(
         {
-          reference,
+          reference: debitReference,
           wallet_id: senderWallet.id,
           type: 'debit',
           amount,
@@ -152,7 +153,7 @@ export class WalletService {
 
       await this.transactionRepository.create(
         {
-          reference,
+          reference: creditReference,
           wallet_id: recipientWallet.id,
           type: 'credit',
           amount,
@@ -166,7 +167,8 @@ export class WalletService {
 
       return {
         message: 'Transfer successful',
-        reference,
+        debitReference,
+        creditReference,
         amount,
         senderBalance: senderBalanceAfter,
       };
