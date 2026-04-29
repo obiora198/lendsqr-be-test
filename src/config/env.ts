@@ -20,10 +20,17 @@ const envVarsSchema = Joi.object({
   .unknown()
   .required();
 
-const { value: envVars, error } = envVarsSchema.validate(process.env);
-
-if (error) {
-  throw new Error(`Config validation error: ${error.message}`);
+let envVars;
+try {
+  const { value, error } = envVarsSchema.validate(process.env, { abortEarly: false, allowUnknown: true });
+  if (error) {
+    console.error('❌ Environment validation error:', error.message);
+    throw new Error(`Config validation error: ${error.message}`);
+  }
+  envVars = value;
+} catch (err: any) {
+  console.error('💥 Critical Config Error:', err.message);
+  process.exit(1);
 }
 
 export const config = {
