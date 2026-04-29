@@ -1,5 +1,6 @@
 import type { Knex } from 'knex';
 import { config } from './config/env';
+import path from 'path';
 
 const knexConfig: { [key: string]: Knex.Config } = {
   development: {
@@ -12,7 +13,7 @@ const knexConfig: { [key: string]: Knex.Config } = {
       database: config.db.name,
     },
     migrations: {
-      directory: './database/migrations',
+      directory: path.join(__dirname, 'database/migrations'),
       extension: 'ts',
     },
   },
@@ -26,7 +27,7 @@ const knexConfig: { [key: string]: Knex.Config } = {
       database: config.db.name + '_test',
     },
     migrations: {
-      directory: './database/migrations',
+      directory: path.join(__dirname, 'database/migrations'),
       extension: 'ts',
     },
   },
@@ -41,7 +42,7 @@ const knexConfig: { [key: string]: Knex.Config } = {
       ssl: config.db.ssl ? { rejectUnauthorized: false } : false,
     },
     migrations: {
-      directory: './src/database/migrations',
+      directory: path.join(__dirname, 'database/migrations'),
       extension: 'ts',
     },
   },
